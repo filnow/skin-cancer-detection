@@ -10,12 +10,10 @@ from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 
 class SkinCancerDataModule(L.LightningDataModule):
     def __init__(self, batch_size: int = 32, img_size: int = 224, 
-                 test_dir: str = "./test", train_dir: str = "./train"):
+                 train_dir: str = "./train"):
         super().__init__()
         self.batch_size = batch_size
         self.img_size = img_size
-
-        self.test_dir = test_dir
         self.train_dir = train_dir
 
         self.transform = transforms.Compose([
@@ -27,24 +25,17 @@ class SkinCancerDataModule(L.LightningDataModule):
     
     def prepare_data(self):
         self.trainData = datasets.ImageFolder(root=self.train_dir, transform=self.transform)
-        self.testData = datasets.ImageFolder(root=self.test_dir, transform=self.transform)
 
     def setup(self, stage: str):
         if stage == 'fit':
             self.trainSet, self.valSet = torch.utils.data.random_split(self.trainData,\
                  [int(0.8 * len(self.trainData)), len(self.trainData) - int(0.8 * len(self.trainData))])
 
-        if stage == 'test':
-            self.testSet = self.testData
-
     def train_dataloader(self):
-        return DataLoader(self.trainSet, batch_size=self.batch_size, shuffle=True, num_workers=7)
+        return DataLoader(self.trainSet, batch_size=self.batch_size, shuffle=True, num_workers=4)
     
     def val_dataloader(self):
-        return DataLoader(self.valSet, batch_size=self.batch_size, shuffle=False, num_workers=7)
-    
-    def test_dataloader(self):
-        return DataLoader(self.testSet, batch_size=self.batch_size, shuffle=False)
+        return DataLoader(self.valSet, batch_size=self.batch_size, shuffle=False, num_workers=4)
     
 
 class SkinCancerModule(L.LightningModule):
@@ -83,12 +74,12 @@ class SkinCancerModule(L.LightningModule):
         self.log('val_accuracy', self.val_acc, on_epoch=True)
         self.log('val_loss', loss, on_epoch=True)
         return loss
-
+    
 
 if __name__ == '__main__':
     IMG_SIZE = 224
     BATCH_SIZE = 32
-    EPOCHS = 20
+    EPOCHS = 5
     LEARNING_RATE = 0.001
     PATIENCE = 5
     MIN_DELTA = 0.01
@@ -105,8 +96,4 @@ if __name__ == '__main__':
     trainer = L.Trainer(max_epochs=EPOCHS, accelerator=device, callbacks=[early_stop_callback])
 
     trainer.fit(model, dm)
-
-    dm.setup('test')
-
-    trainer.test(model, dm.test_dataloader())
 
