@@ -1,4 +1,5 @@
 import torch
+import argparse
 import torchmetrics
 import lightning as L
 
@@ -95,25 +96,29 @@ class SkinCancerModule(L.LightningModule):
     
 
 if __name__ == '__main__':
-    IMG_SIZE = 224
-    BATCH_SIZE = 32
-    EPOCHS = 20
-    LEARNING_RATE = 0.001
-    PATIENCE = 3
-    MIN_DELTA = 0.01
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--img_size', type=int, default=224, help='Input image size')
+    parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
+    parser.add_argument('--epochs', type=int, default=20, help='Number of training epochs')
+    parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate')
+    parser.add_argument('--patience', type=int, default=5, help='Patience for early stopping')
+    parser.add_argument('--min_delta', type=float, default=0.01, help='Minimum delta for early stopping')
+
+    args = parser.parse_args()
 
     device = 'gpu' if torch.cuda.is_available() else 'cpu'
 
-    dm = SkinCancerDataModule(batch_size=BATCH_SIZE, img_size=IMG_SIZE)
+    dm = SkinCancerDataModule(batch_size=args.batch_size, img_size=args.img_size)
     dm.prepare_data()
     dm.setup('fit')
 
-    model = SkinCancerModule(learning_rate=LEARNING_RATE, num_classes=len(dm.trainData.classes))
+    model = SkinCancerModule(learning_rate=args.learning_rate, num_classes=len(dm.trainData.classes))
     
-    early_stop_callback = EarlyStopping(monitor="val_accuracy", patience=PATIENCE, verbose=True,\
-         min_delta=MIN_DELTA, stopping_threshold=0.01, check_finite=True, check_on_train_epoch_end=False, mode="max")
+    early_stop_callback = EarlyStopping(monitor="val_acc", patience=args.patience, verbose=True,\
+         min_delta=args.min_delta, check_finite=True, check_on_train_epoch_end=False, mode="max")
     
-    trainer = L.Trainer(max_epochs=EPOCHS, accelerator=device, callbacks=[early_stop_callback])
+    trainer = L.Trainer(max_epochs=args.epochs, accelerator=device, callbacks=[early_stop_callback])
 
     trainer.fit(model, dm)
 

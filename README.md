@@ -3,6 +3,7 @@
 Repo for training and experiments with skin-cancer dataset from kaggle
 
 [Link to dataset](https://www.kaggle.com/datasets/fanconic/skin-cancer-malignant-vs-benign)
+
 [Link to kaggle notebook](https://www.kaggle.com/code/filnow/acc-92-on-test-set-with-simple-pytorch)
 
 ## Experiments
@@ -23,8 +24,6 @@ All the experiments was documented using Weights&Biases.
 
 [Link to Wandb project](https://wandb.ai/filnow42/skin-cancer)
 
-## Production
+After experiments I wrote training script using PyTorch Lightning.
 
-After experiments I wrote training script using PyTorch Lightning and also test script.
-This can be run in docker container with Dockerfile that is in the repo.
 
