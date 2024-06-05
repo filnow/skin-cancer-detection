@@ -16,7 +16,7 @@ on:
       epochs:
         description: 'Number of training epochs'
         required: true
-        default: '20'
+        default: '1'
         type: string
       learning_rate:
         description: 'Learning rate'
@@ -50,7 +50,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        
+
     - name: Install kaggle-api
       run: |
         pip install kaggle
