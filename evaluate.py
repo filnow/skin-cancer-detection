@@ -28,7 +28,7 @@ def main(args):
 
     summary_callback = ModelSummary(max_depth=2)
     trainer.callbacks.append(summary_callback)
-    trainer.fit_loop.epoch_loop.refit(model, dm)  
+    
 
     test_results = trainer.test(model, dm.test_dataloader(), verbose=True)
 

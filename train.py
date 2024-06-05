@@ -122,7 +122,8 @@ if __name__ == '__main__':
 
     trainer.fit(model, dm)
 
-    torch.save(model.state_dict(), "model.ckpt")
+    trainer.save_checkpoint("model.ckpt")
+    
     
 
 
