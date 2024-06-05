@@ -62,7 +62,6 @@ jobs:
       run: |
         kaggle datasets download -d fanconic/skin-cancer-malignant-vs-benign
         unzip skin-cancer-malignant-vs-benign.zip
-        rm skin-cancer-malignant-vs-benign.zip
         rm -r data
 
     - name: Upload data artifact
@@ -70,8 +69,7 @@ jobs:
       with:
         name: skin-cancer-dataset
         path: |
-          train/
-          test/
+          skin-cancer-malignant-vs-benign.zip
 
     - name: Train model
       run: |
@@ -110,11 +108,17 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: trained-model
-        
+
     - name: Download data artifact
       uses: actions/download-artifact@v2
       with:
         name: skin-cancer-dataset
+        
+    - name: Unzip data
+      run: |
+        unzip skin-cancer-malignant-vs-benign.zip
+        rm -r data
+        rm skin-cancer-malignant-vs-benign.zip
 
     - name: Evaluate model
       run: |
