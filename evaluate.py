@@ -76,7 +76,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--img_size', type=int, default=224, help='Input image size')
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
-    parser.add_argument('--model', type=str, default="./model.ckpt", required=True, help='Path to the model checkpoint')
+    parser.add_argument('--model', type=str, default="./model.ckpt", help='Path to the model checkpoint')
     parser.add_argument('--test_dir', type=str, default='./test', help='Directory containing test images')
     parser.add_argument('--output_dir', type=str, default='./evaluation_results', help='Directory to save evaluation results')
 
