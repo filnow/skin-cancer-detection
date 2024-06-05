@@ -122,9 +122,7 @@ if __name__ == '__main__':
 
     trainer.fit(model, dm)
 
-    dm.setup('test')
-    trainer.test(model, dm.test_dataloader())
-
+    torch.save(model.state_dict(), "model.ckpt")
     
 
 

@@ -1,0 +1,119 @@
+name: Train and Evaluate Skin Cancer Model
+
+on:
+  workflow_dispatch:
+    inputs:
+      img_size:
+        description: 'Input image size'
+        required: true
+        default: '224'
+        type: string
+      batch_size:
+        description: 'Batch size for training'
+        required: true
+        default: '32'
+        type: string
+      epochs:
+        description: 'Number of training epochs'
+        required: true
+        default: '20'
+        type: string
+      learning_rate:
+        description: 'Learning rate'
+        required: true
+        default: '0.001'
+        type: string
+      patience:
+        description: 'Patience for early stopping'
+        required: true
+        default: '5'
+        type: string
+      min_delta:
+        description: 'Minimum delta for early stopping'
+        required: true
+        default: '0.01'
+        type: string
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Install kaggle-api
+      run: |
+        pip install kaggle
+        mkdir -p ~/.kaggle
+        echo '{"username":"${{ secrets.KAGGLE_USERNAME }}","key":"${{ secrets.KAGGLE_KEY }}"}' > ~/.kaggle/kaggle.json
+        chmod 600 ~/.kaggle/kaggle.json
+
+    - name: Download training data
+      run: |
+        kaggle datasets download -d fanconic/skin-cancer-malignant-vs-benign
+        unzip skin-cancer-malignant-vs-benign.zip
+        rm skin-cancer-malignant-vs-benign.zip
+        rm -r data
+
+    - name: Train model
+      run: |
+        python train.py \
+          --img_size ${{ github.event.inputs.img_size }} \
+          --batch_size ${{ github.event.inputs.batch_size }} \
+          --epochs ${{ github.event.inputs.epochs }} \
+          --learning_rate ${{ github.event.inputs.learning_rate }} \
+          --patience ${{ github.event.inputs.patience }} \
+          --min_delta ${{ github.event.inputs.min_delta }}
+
+    - name: Upload model artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: trained-model
+        path: model.ckpt
+
+  evaluate:
+    needs: train
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Download model artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: trained-model
+
+    - name: Evaluate model
+      run: |
+        python evaluate.py \
+          --img_size ${{ github.event.inputs.img_size }} \
+          --batch_size ${{ github.event.inputs.batch_size }} \
+          --model model.ckpt \ 
+          --test_dir ./test \
+          --output_dir ./evaluation_results
+
+    - name: Upload evaluation results
+      uses: actions/upload-artifact@v2
+      with:
+        name: evaluation-results
+        path: evaluation_results/results.json
