@@ -18,10 +18,8 @@ def main(args):
     )
     dm.prepare_data()
     dm.setup('test')
-    
-    model = SkinCancerModule.load_from_checkpoint(
-        checkpoint_path=args.model,
-    )
+
+    model = SkinCancerModule.load_from_checkpoint(args.model)
 
     model.eval()
     model.freeze()
