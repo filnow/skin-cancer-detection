@@ -65,6 +65,14 @@ jobs:
         rm skin-cancer-malignant-vs-benign.zip
         rm -r data
 
+    - name: Upload data artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: skin-cancer-dataset
+        path: |
+          train/
+          test/
+
     - name: Train model
       run: |
         python train.py \
@@ -102,6 +110,11 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: trained-model
+        
+    - name: Download data artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: skin-cancer-dataset
 
     - name: Evaluate model
       run: |
