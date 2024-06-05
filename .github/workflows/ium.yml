@@ -105,12 +105,7 @@ jobs:
 
     - name: Evaluate model
       run: |
-        python evaluate.py \
-          --img_size ${{ github.event.inputs.img_size }} \
-          --batch_size ${{ github.event.inputs.batch_size }} \
-          --model model.ckpt \ 
-          --test_dir ./test \
-          --output_dir ./evaluation_results
+        python evaluate.py
 
     - name: Upload evaluation results
       uses: actions/upload-artifact@v2
