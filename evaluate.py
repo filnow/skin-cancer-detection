@@ -19,9 +19,9 @@ def main(args):
     dm.prepare_data()
     dm.setup('test')
     
-    num_classes = len(dm.trainData.classes)
-
-    model = SkinCancerModule(num_classes=num_classes).load_from_checkpoint(args.model)
+    model = SkinCancerModule.load_from_checkpoint(
+        checkpoint_path=args.model,
+    )
 
     model.eval()
     model.freeze()
